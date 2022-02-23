@@ -1,0 +1,37 @@
+{
+    "name": "php-grape/grape-entity",
+    "description": "A simple facade for managing the relationship between your model and API.",
+    "keywords": [
+        "php-grape",
+        "grape",
+        "grape-entity",
+        "entity",
+        "API",
+        "model",
+        "facade"
+    ],
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://github.com/php-grape/grape-entity",
+    "support": {
+        "issues": "https://github.com/php-grape/grape-entity/issues"
+    },
+    "minimum-stability": "stable",
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "php-coveralls/php-coveralls": "^2.5"
+    },
+    "require": {
+        "php": ">=7.4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "PhpGrape\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PhpGrape\\Tests\\": "tests/"
+        }
+    }
+}

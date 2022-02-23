@@ -1,0 +1,9 @@
+
+.DS_Store
+vendor
+build
+composer.lock
+composer.phar
+/phpunit.xml
+.phpunit.result.cache
+clover.xml
