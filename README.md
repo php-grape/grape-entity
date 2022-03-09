@@ -30,6 +30,7 @@
     - [Passing Additional Option To Nested Exposure](#passing-additional-option-to-nested-exposure)
     - [Attribute Path Tracking](#attribute-path-tracking)
   - [Using Entities](#using-entities)
+  - [JSON and XML formats](#json-and-xml-formats)
   - [Key transformer](#key-transformer)
   - [Adapters](#adapters)
     - [Laravel / Eloquent adapter](#laravel--eloquent-adapter)
@@ -44,8 +45,9 @@
 
 Heavily inspired by [ruby-grape/grape-entity](https://github.com/ruby-grape/grape-entity).
 
-
 This package adds Entity support to API frameworks. PhpGrape's Entity is an API focused facade that sits on top of an object model.
+
+While this can be achieved with Transformers (using Laravel), it provides a cleaner approach with more features.
 
 ## Installation
 
@@ -123,6 +125,7 @@ class AEntity extends Entity
 {
   use EntityTrait;
 
+  // `initialized` will be called automatically when needed :)
   private static function initialize()
   {
     self::extends(BEntity::class, CEntity::class, DEntity::class);
@@ -181,7 +184,7 @@ json_encode($representation); // => { code: 418, message: "I'm a teapot" }
 Don't derive your model classes from `Grape::Entity`, expose them using a presenter.
 
 ```php
-self::expose('replies', ['as' => 'responses', 'using' => StatusEntity::class]
+self::expose('replies', ['as' => 'responses', 'using' => StatusEntity::class]);
 ```
 
 #### Conditional Exposure
@@ -283,10 +286,10 @@ self::expose('profiles', function() {
 Provide closure to solve collisions:
 
 ```php
-self::expose('status', 'merge' => function($key, $oldVal, $newVal) { 
+self::expose('status', ['merge' => function($key, $oldVal, $newVal) { 
   // You don't need to check if $oldVal is set here
   return $oldVal && $newVal ? $oldVal + $newVal : null;
-});
+}]);
 ```
 
 #### Runtime Exposure
@@ -758,6 +761,27 @@ class ApiController
 }
 ```
 
+### JSON and XML formats
+
+PhpGrape\Entity implements JsonSerializable, so calling `json_encode` will automatically serialize your entity to JSON.
+It'll work in any circumstances (see [Using Entities](#using-entities)):
+```php
+json_encode(new MyEntity($myObj))
+json_encode(MyEntity::represent($myObj))
+```
+
+2 helpers are also presents on PhpGrape\Entity:
+- toJson
+- toXml
+
+So you can do:
+```php
+new MyEntity($myObj)->toJson();
+new MyEntity($myObj)->toXml();
+```
+
+Note: When `::represent` returns a single entity, you'll also be able to call these methods. It means it won't work it you set a `root` key or if you do not use `presentCollection` properly when presenting a collection (see [Collection Exposure](#collection-exposure))
+
 ### Key transformer
 
 Most of the time backend languages use different naming conventions than frontend ones, so you often end up using helpers to convert your data keys case.
@@ -836,6 +860,7 @@ Eloquent relies massively on the magic `__get` method. Unfortunately, no Excepti
 
 To fix this, and to enjoy all the great PhpGrape\Entity features, an `Eloquent` adapter's been included. You'll still be able to use magic attributes, mutated attributes and access relations in your exposures. No more typo allowed though!
 
+Works with all Laravel versions!
 
 ## Testing with Entities
 

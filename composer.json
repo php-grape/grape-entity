@@ -8,7 +8,9 @@
         "entity",
         "API",
         "model",
-        "facade"
+        "facade",
+        "transformers",
+        "laravel"
     ],
     "type": "library",
     "license": "MIT",

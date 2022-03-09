@@ -44,7 +44,7 @@ trait EntityTrait
         }
     }
 
-    public abstract static function initialize(): void;
+    public abstract static function initialize();
 
     public static function extends(): void
     {
@@ -149,7 +149,7 @@ trait EntityTrait
             if (\array_key_exists('expose_null', $options)) throw new InvalidOptionException('You may not use `expose_null` on multi-attribute exposures');
             if (isset($options['as'])) throw new InvalidOptionException('You may not use the `as` option on multi-attribute exposures');
             foreach ($args as $arg)
-                \call_user_func_array('self::expose', \array_filter([$arg, $options, $func], function ($item) {
+                \call_user_func_array(\get_called_class() . '::expose', \array_filter([$arg, $options, $func], function ($item) {
                     return $item !== \null;
                 }));
             return;

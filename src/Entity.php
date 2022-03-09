@@ -190,9 +190,9 @@ class Entity implements \JsonSerializable
         // Serializable value
         if (\is_iterable($value)) {
             foreach ($value as $index => $obj)
-                if (\method_exists($obj, 'serializableArray') && \is_callable([$obj, 'serializableArray']))
+                if (\is_object($obj) && \method_exists($obj, 'serializableArray') && \is_callable([$obj, 'serializableArray']))
                     $value[$index] = $obj->serializableArray();
-        } elseif (\method_exists($value, 'serializableArray') && \is_callable([$value, 'serializableArray'])) {
+        } elseif (\is_object($value) && \method_exists($value, 'serializableArray') && \is_callable([$value, 'serializableArray'])) {
             $value = $value->serializableArray();
         }
         // Default value
@@ -356,6 +356,7 @@ class Entity implements \JsonSerializable
         return $root && ($inRoot === \false || \count($root) > 1) ? $root : $exposures;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->serializableArray();
