@@ -16,7 +16,6 @@ class Util
         }, \mb_strtolower($str, 'UTF-8'));
     }
 
-
     public static function snake(string $str): string
     {
         if (isset(self::$snakeCache[$str])) return self::$snakeCache[$str];

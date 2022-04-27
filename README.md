@@ -862,6 +862,8 @@ To fix this, and to enjoy all the great PhpGrape\Entity features, an `Eloquent` 
 
 Works with all Laravel versions!
 
+Note: when creating a model, if all attributes are not passed, you'll need to call the `fresh` method in order to retrieve them.
+
 ## Testing with Entities
 
 Test API request/response as usual.

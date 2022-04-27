@@ -2133,4 +2133,33 @@ class EntityTest extends TestCase
         $representation = TestEntity::represent(['name' => 'John']);
         $this->assertEquals(['get_name' => 'John'], $representation->serializableArray());
     }
+
+    public function testAdapter()
+    {
+        Entity::setPropValueAdapter('test', [
+            'condition' => function () {
+                $model = 'TestAbGet';
+                return (new \ReflectionClass($this->object))->getShortName() === $model;
+            },
+            'getPropValue' => function ($prop, $safe, $cache) {
+                if ($prop === 'id') return 'id';
+
+                $class = get_class($this->object);
+                $value = $cache->get($class, $prop);
+                if ($value !== null) return $value;
+
+                $cache->set($class, $prop, $this->object->{$prop});
+                return $this->object->{$prop};
+            }
+        ]);
+
+        $representation = UserEntity::represent(new TestAbGet(['id' => 1, 'name' => 'John']));
+        $this->assertEquals(['id' => 'id', 'name' => 'John'], $representation->serializableArray());
+
+        // Cache test
+        $representation = UserEntity::represent(new TestAbGet(['id' => 2, 'name' => 'Jane']));
+        $this->assertEquals(['id' => 'id', 'name' => 'John'], $representation->serializableArray());
+
+        Entity::setPropValueAdapter('test', null);
+    }
 }

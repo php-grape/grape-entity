@@ -104,7 +104,7 @@ class Entity implements \JsonSerializable
         if (!$adapter) {
             unset(self::$adapters[$name]);
         } else {
-            $adapter['cache'] = [];
+            $adapter['cache'] = new AdapterCache();
             self::$adapters[$name] = $adapter;
         }
     }
@@ -219,15 +219,9 @@ class Entity implements \JsonSerializable
 
         // Run through adapters and then handle objects and arrays
         $safe = isset($expose['options']['safe']) && $expose['options']['safe'] === \true;
-        foreach (self::$adapters as $name => $adapter) {
+        foreach (self::$adapters as $adapter) {
             if ($adapter['condition']->call($this, $prop, $safe))
-                return $adapter['getPropValue']->call($this, $prop, $safe, function ($method, $class, $cacheValue) use ($name) {
-                    if ($method !== 'set') return isset(self::$adapters[$name]['cache'][$class][$cacheValue]);
-                    if (!isset(self::$adapters[$name]['cache'][$class][$cacheValue])) {
-                        if (!isset(self::$adapters[$name]['cache'][$class])) self::$adapters[$name]['cache'][$class] = [];
-                        self::$adapters[$name]['cache'][$class][$cacheValue] = \true;
-                    }
-                });
+                return $adapter['getPropValue']->call($this, $prop, $safe, $adapter['cache']);
         }
         if (\is_object($this->object)) return $this->getObjectPropValue($prop, $safe);
         if (\is_array($this->object)) return $this->getArrayPropValue($prop, $safe);
@@ -387,7 +381,7 @@ Entity::setPropValueAdapter('Eloquent', [
 
         $class = get_class($this->object);
         // Cached relations
-        if ($cache('get', $class, $prop)) return $this->object->getAttribute($prop);
+        if ($cache->get($class, $prop) !== null) return $this->object->getAttribute($prop);
 
         // Object method or Relation
         if (\method_exists($this->object, $prop)) {
@@ -398,7 +392,7 @@ Entity::setPropValueAdapter('Eloquent', [
                 // Relation
                 $relation = 'Illuminate\Database\Eloquent\Relations\Relation';
                 if ($value instanceof $relation) {
-                    $cache('set', $class, $prop);
+                    $cache->set($class, $prop, \true);
                     $value = $value->getResults();
                     $this->object->setRelation($prop, $value);
                 }
